@@ -13,5 +13,5 @@ database.o: database.cpp database.h
 	$(CC) $(CFLAGS) -c database.cpp
 
 clean :
-	rm -f hsh depend.mak *.o *.txt
+	rm -f db depend.mak *.o *.txt
 	rm -r -f *.dSYM
