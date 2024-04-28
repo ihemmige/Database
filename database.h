@@ -23,6 +23,10 @@ const int PAGE_SIZE = 4096;
 const int ENTRIES_PER_PAGE = PAGE_SIZE / ENTRY_SIZE;
 const int MAX_ENTRIES = ENTRIES_PER_PAGE * MAX_PAGES;
 
+// const int FILE_HEADER_PAGE_OFFSET = 1;
+// const int NUM_ENTRY_INFO_SIZE = 4;
+// const int NUM_ENTRY_PAGE_NUM = 0;
+
 // Class Definitions
 class Entry {
 public:
@@ -43,8 +47,13 @@ class Table {
 public:
   uint32_t numEntries;
   void *pages[MAX_PAGES];
+  int fd;
   Table();
   ~Table();
+  void loadTable();
+  void flushPage(uint32_t page_num);
+  void* getPagePointer(uint32_t page_num);
+  void readPageOne();
 };
 
 class Database {

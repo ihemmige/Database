@@ -1,13 +1,32 @@
 #include "database.h"
+#include <unistd.h>
+#include <fcntl.h>
 
 void Entry::printSelf() { cout << key << " " << name << " " << email << endl; }
 
-Table::Table() { numEntries = 0; }
+Table::Table() { 
+  numEntries = 1; 
+  for (int i = 0; i < MAX_PAGES; i++) {
+    this->pages[i] = nullptr;
+  }
+  this->fd = open("data.bin", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (this->fd == -1) {
+      cout << "Error opening file" << endl;
+      exit(EXIT_FAILURE);
+    }
+}
 
 Table::~Table() {
   for (int i = 0; i < MAX_PAGES; i++) {
     free(pages[i]);
   }
+  // char buf[sizeof(this->numEntries)];
+  // memcpy(buf, &(this->numEntries), sizeof(this->numEntries));
+  // ssize_t bytesWritten = pwrite(this->fd, buf, sizeof(buf), 0);
+  // if (bytesWritten == -1 || bytesWritten != sizeof(buf)) {
+  //   cout << "Failed to write through to DB." << endl;
+  // }
+  close(this->fd);
 }
 
 void Database::prompt() { cout << "DB > "; }
@@ -54,6 +73,7 @@ int Database::executeStatement(Statement st, Table &table) {
                                Database::entrySlot(table, table.numEntries));
       table.numEntries += 1;
     }
+    table.flushPage(table.numEntries/ENTRIES_PER_PAGE);
     break;
   default:
     return 1;
@@ -88,6 +108,55 @@ void Database::serializeEntry(Entry &source, void *destination) {
          NAME_SIZE);
   memcpy(static_cast<char *>(destination) + EMAIL_OFFSET, &(source.email),
          EMAIL_SIZE);
+}
+
+void Table::flushPage(uint32_t page_num) {
+  void *page = this->pages[page_num];
+  if (page == nullptr) {
+    return;
+  }
+  ssize_t bytesWritten = pwrite(this->fd, page, PAGE_SIZE, page_num * PAGE_SIZE);
+  if (bytesWritten == -1 || bytesWritten != PAGE_SIZE) {
+    cout << "Failed to write through to DB." << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+void* Table::getPagePointer(uint32_t page_num) {
+  if (this->pages[page_num]) return this->pages[page_num];
+  void* pagePtr = this->pages[page_num] = malloc(PAGE_SIZE);
+  return pagePtr;
+}
+
+void Table::readPageOne() {
+  void* buf = malloc(PAGE_SIZE);
+  int fd = open("data.bin", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+  ssize_t bytesRead = pread(fd, buf, PAGE_SIZE, 0);
+  uint32_t intValue;
+  memcpy(&intValue, buf, sizeof(intValue));
+  this->numEntries = intValue;
+  cout << intValue << endl;
+  close(fd);
+}
+
+void Table::loadTable() {
+  this->fd = open("data.bin", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+  void* buf = malloc(PAGE_SIZE);
+
+  // this->readPageOne();
+
+  for (int i = 0; i < MAX_PAGES; i++) {
+    ssize_t bytesRead = pread(this->fd, buf, PAGE_SIZE, PAGE_SIZE * i);
+    if (bytesRead == -1) {
+      cout << "Error loading table" << endl;
+      exit(EXIT_FAILURE);
+    } else if (bytesRead == 0) continue;
+    else {
+        void* pagePtr = this->getPagePointer(i);
+        memcpy(pagePtr, buf, PAGE_SIZE);
+    }
+  }
+  free(buf);
 }
 
 void print_page(void *page, size_t size) {

@@ -4,6 +4,7 @@ using namespace std;
 
 int main() {
   Table t;
+  t.loadTable();
   Database d;
   while (1) {
     d.prompt();
