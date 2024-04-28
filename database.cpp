@@ -5,7 +5,7 @@
 void Entry::printSelf() { cout << key << " " << name << " " << email << endl; }
 
 Table::Table() { 
-  numEntries = 1; 
+  numEntries = 0; 
   for (int i = 0; i < MAX_PAGES; i++) {
     this->pages[i] = nullptr;
   }
