@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -23,9 +25,7 @@ const int PAGE_SIZE = 4096;
 const int ENTRIES_PER_PAGE = PAGE_SIZE / ENTRY_SIZE;
 const int MAX_ENTRIES = ENTRIES_PER_PAGE * MAX_PAGES;
 
-// const int FILE_HEADER_PAGE_OFFSET = 1;
-// const int NUM_ENTRY_INFO_SIZE = 4;
-// const int NUM_ENTRY_PAGE_NUM = 0;
+const string TABLE_FILENAME = "data.bin"; 
 
 // Class Definitions
 class Entry {
@@ -53,7 +53,6 @@ public:
   void loadTable();
   void flushPage(uint32_t page_num);
   void* getPagePointer(uint32_t page_num);
-  void readPageOne();
 };
 
 class Database {
