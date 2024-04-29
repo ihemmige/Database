@@ -31,7 +31,7 @@ void Table::closeTable() {
     for (int i = 0; i < MAX_PAGES; i++) {
       if (this->pages[i]) {
           this->flushPage(i);
-          free(pages[i]);
+          delete[] reinterpret_cast<char*>(this->pages[i]);
       }    
     }
     close(this->fd);

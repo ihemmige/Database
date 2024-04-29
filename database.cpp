@@ -119,7 +119,7 @@ void print_page(void *page, size_t size) {
 void *Table::getPage(uint32_t pageNum) {
   void *page = this->pages[pageNum];
   if (page == nullptr) {
-    page = this->pages[pageNum] = malloc(PAGE_SIZE);
+    page = this->pages[pageNum] = new char[PAGE_SIZE];
     ssize_t bytesRead = pread(this->fd, page, PAGE_SIZE, PAGE_SIZE * pageNum);
     if (bytesRead == -1) {
       cout << "Error loading table" << endl;
