@@ -5,6 +5,7 @@ CFLAGS = -std=c++2a -Wall -Wextra -pedantic -g
 
 db: main.o database.o fileInteraction.o
 	$(CC) -o db main.o database.o fileInteraction.o
+	rm -f *.o
 
 main.o: main.cpp database.h
 	$(CC) $(CFLAGS) -c main.cpp 

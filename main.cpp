@@ -2,14 +2,13 @@
 
 int main() {
   Table t;
-  t.loadTable();
   Database d;
   while (1) {
     d.prompt();
     string input;
     getline(cin, input);
     if (input[0] == '.') {
-      if (!d.metaCommand(input)) {
+      if (!d.metaCommand(input, t)) {
         continue;
       } else
         cout << "Meta command not recognized" << endl;

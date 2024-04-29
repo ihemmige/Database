@@ -49,16 +49,15 @@ public:
   void *pages[MAX_PAGES];
   int fd;
   Table();
-  ~Table();
-  void loadTable();
-  void flushPage(uint32_t page_num);
-  void* getPagePointer(uint32_t page_num);
+  void flushPage(uint32_t pageNum);
+  void* getPage(uint32_t pageNum);
+  void closeTable();
 };
 
 class Database {
   public:
     void prompt();
-    int metaCommand(string &input);
+    int metaCommand(string &input, Table& table);
     int parseCommand(string &input, Statement &st);
     int executeStatement(Statement st, Table &table);
     void *entrySlot(Table &table, uint32_t entry_num);
